@@ -1,11 +1,22 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    Param,
+    Patch,
+    Post,
+} from '@nestjs/common';
 import { CreateTaskUseCase } from 'src/tasks/application/use-cases/create-task.use-case';
 import { DeleteTaskUseCase } from 'src/tasks/application/use-cases/delete-task.use-case';
 import { GetTaskByIdUseCase } from 'src/tasks/application/use-cases/get-task-by-id.use-case';
 import { GetTasksUseCase } from 'src/tasks/application/use-cases/get-tasks.use-case';
 import { UpdateTaskStatusUseCase } from 'src/tasks/application/use-cases/update-task-status-use-case';
 import { UpdateTaskUseCase } from 'src/tasks/application/use-cases/update-task.use-case';
-import { TaskStatus } from 'src/tasks/domain/entity/task';
+import { CreateTaskDto } from './dtos/create-task.dto';
+import { UpdateTaskStatusDto } from './dtos/update-task-status.dto';
+import { UpdateTaskDto } from './dtos/update-task.dto';
+import { TaskMapper } from './mappers/task.mapper';
 
 @Controller('tasks')
 export class TaskController {
@@ -19,33 +30,32 @@ export class TaskController {
     ) {}
 
     @Post()
-    createTask(@Body() body: { title: string; description: string }) {
+    createTask(@Body() body: CreateTaskDto) {
         return this.createTaskUseCase.execute(body);
     }
 
     @Get()
     getTasks() {
-        return this.getTasksUseCase.execute();
+        return this.getTasksUseCase
+            .execute()
+            .map((task) => TaskMapper.toResponseDto(task));
     }
 
     @Get(':id')
     getTaskById(@Param('id') id: string) {
-        return this.getTaskByIdUseCase.execute(id);
+        return TaskMapper.toResponseDto(this.getTaskByIdUseCase.execute(id));
     }
 
     @Patch(':id/status')
     updateTaskStatus(
         @Param('id') id: string,
-        @Body() body: { status: TaskStatus },
+        @Body() body: UpdateTaskStatusDto,
     ) {
         return this.updateTaskStatusUseCase.execute(id, body.status);
     }
 
     @Patch(':id')
-    updateTask(
-        @Param('id') id: string,
-        @Body() body: { title?: string; description?: string },
-    ) {
+    updateTask(@Param('id') id: string, @Body() body: UpdateTaskDto) {
         return this.updateTaskUseCase.execute(id, body);
     }
 
