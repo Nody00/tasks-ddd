@@ -8,6 +8,7 @@ import { GetTasksUseCase } from './application/use-cases/get-tasks.use-case';
 import { DeleteTaskUseCase } from './application/use-cases/delete-task.use-case';
 import { UpdateTaskUseCase } from './application/use-cases/update-task.use-case';
 import { TaskRepository } from './application/ports/task.repository';
+import { UpdateTaskStatusUseCase } from './application/use-cases/update-task-status-use-case';
 
 const TASK_REPOSITORY = 'TASK_REPOSITORY';
 
@@ -41,6 +42,12 @@ const TASK_REPOSITORY = 'TASK_REPOSITORY';
         {
             provide: UpdateTaskUseCase,
             useFactory: (repo: TaskRepository) => new UpdateTaskUseCase(repo),
+            inject: [TASK_REPOSITORY],
+        },
+        {
+            provide: UpdateTaskStatusUseCase,
+            useFactory: (repo: TaskRepository) =>
+                new UpdateTaskStatusUseCase(repo),
             inject: [TASK_REPOSITORY],
         },
     ],

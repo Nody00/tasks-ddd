@@ -1,9 +1,18 @@
+import { InvalidStatusTransitionException } from '../exceptions/invalid-status-transition-exception';
+
 export enum TaskStatus {
     OPEN = 'OPEN',
     IN_PROGRESS = 'IN_PROGRESS',
     DONE = 'DONE',
     DELETED = 'DELETED',
 }
+
+const ALLOWED_TRANSITIONS: Record<TaskStatus, TaskStatus[]> = {
+    [TaskStatus.OPEN]: [TaskStatus.IN_PROGRESS, TaskStatus.DELETED],
+    [TaskStatus.IN_PROGRESS]: [TaskStatus.DONE, TaskStatus.DELETED],
+    [TaskStatus.DONE]: [TaskStatus.DELETED],
+    [TaskStatus.DELETED]: [],
+};
 
 export class Task {
     id: string;
@@ -19,6 +28,9 @@ export class Task {
     }
 
     updateStatus(status: TaskStatus) {
+        if (!ALLOWED_TRANSITIONS[this.status].includes(status)) {
+            throw new InvalidStatusTransitionException(this.status, status);
+        }
         this.status = status;
     }
 

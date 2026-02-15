@@ -1,19 +1,11 @@
-import {
-    Body,
-    Controller,
-    Delete,
-    Get,
-    NotFoundException,
-    Param,
-    Patch,
-    Post,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 import { CreateTaskUseCase } from 'src/tasks/application/use-cases/create-task.use-case';
 import { DeleteTaskUseCase } from 'src/tasks/application/use-cases/delete-task.use-case';
 import { GetTaskByIdUseCase } from 'src/tasks/application/use-cases/get-task-by-id.use-case';
 import { GetTasksUseCase } from 'src/tasks/application/use-cases/get-tasks.use-case';
+import { UpdateTaskStatusUseCase } from 'src/tasks/application/use-cases/update-task-status-use-case';
 import { UpdateTaskUseCase } from 'src/tasks/application/use-cases/update-task.use-case';
-import { TaskNotFoundException } from 'src/tasks/domain/exceptions/task-not-found.exception';
+import { TaskStatus } from 'src/tasks/domain/entity/task';
 
 @Controller('tasks')
 export class TaskController {
@@ -23,6 +15,7 @@ export class TaskController {
         private readonly getTasksUseCase: GetTasksUseCase,
         private readonly deleteTaskUseCase: DeleteTaskUseCase,
         private readonly updateTaskUseCase: UpdateTaskUseCase,
+        private readonly updateTaskStatusUseCase: UpdateTaskStatusUseCase,
     ) {}
 
     @Post()
@@ -37,14 +30,15 @@ export class TaskController {
 
     @Get(':id')
     getTaskById(@Param('id') id: string) {
-        try {
-            return this.getTaskByIdUseCase.execute(id);
-        } catch (error) {
-            if (error instanceof TaskNotFoundException) {
-                throw new NotFoundException(error.message);
-            }
-            throw error;
-        }
+        return this.getTaskByIdUseCase.execute(id);
+    }
+
+    @Patch(':id/status')
+    updateTaskStatus(
+        @Param('id') id: string,
+        @Body() body: { status: TaskStatus },
+    ) {
+        return this.updateTaskStatusUseCase.execute(id, body.status);
     }
 
     @Patch(':id')
@@ -52,25 +46,11 @@ export class TaskController {
         @Param('id') id: string,
         @Body() body: { title?: string; description?: string },
     ) {
-        try {
-            return this.updateTaskUseCase.execute(id, body);
-        } catch (error) {
-            if (error instanceof TaskNotFoundException) {
-                throw new NotFoundException(error.message);
-            }
-            throw error;
-        }
+        return this.updateTaskUseCase.execute(id, body);
     }
 
     @Delete(':id')
     deleteTask(@Param('id') id: string) {
-        try {
-            return this.deleteTaskUseCase.execute(id);
-        } catch (error) {
-            if (error instanceof TaskNotFoundException) {
-                throw new NotFoundException(error.message);
-            }
-            throw error;
-        }
+        return this.deleteTaskUseCase.execute(id);
     }
 }
