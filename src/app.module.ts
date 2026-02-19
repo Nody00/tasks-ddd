@@ -3,7 +3,9 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TaskModule } from './tasks/task.module';
 import { APP_GUARD } from '@nestjs/core';
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerBehindProxyGuard } from './shared/infrastructure/guards/throttler-behind-proxy.guard';
+import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis';
 
 @Module({
     imports: [
@@ -12,8 +14,8 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
             throttlers: [
                 {
                     name: 'short',
-                    ttl: 100,
-                    limit: 3,
+                    ttl: 1000,
+                    limit: 10,
                 },
                 {
                     name: 'long',
@@ -21,6 +23,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
                     limit: 100,
                 },
             ],
+            storage: new ThrottlerStorageRedisService(),
         }),
     ],
     controllers: [AppController],
@@ -28,7 +31,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
         AppService,
         {
             provide: APP_GUARD,
-            useClass: ThrottlerGuard,
+            useClass: ThrottlerBehindProxyGuard,
         },
     ],
 })

@@ -27,6 +27,7 @@ import {
     ApiTags,
 } from '@nestjs/swagger';
 import { TaskResponseDto } from './dtos/task-response.dto';
+import { ThrottleWrite } from 'src/shared/infrastructure/decorators/throttle.decorators';
 
 @ApiTags('tasks')
 @Controller('tasks')
@@ -40,6 +41,7 @@ export class TaskController {
         private readonly updateTaskStatusUseCase: UpdateTaskStatusUseCase,
     ) {}
 
+    @ThrottleWrite()
     @Post()
     @ApiOperation({ summary: 'Create a new task' })
     @ApiCreatedResponse({

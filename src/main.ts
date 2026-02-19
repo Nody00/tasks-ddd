@@ -4,9 +4,11 @@ import { DomainExceptionFilter } from './shared/infrastructure/filters/domain-ex
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { apiReference } from '@scalar/nestjs-api-reference';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
-    const app = await NestFactory.create(AppModule);
+    const app = await NestFactory.create<NestExpressApplication>(AppModule);
+    app.set('trust proxy', true);
     app.useGlobalFilters(new DomainExceptionFilter());
     app.useGlobalPipes(
         new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }),
