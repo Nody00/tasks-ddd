@@ -9,6 +9,8 @@ import { DeleteTaskUseCase } from './application/use-cases/delete-task.use-case'
 import { UpdateTaskUseCase } from './application/use-cases/update-task.use-case';
 import { TaskRepository } from './application/ports/task.repository';
 import { UpdateTaskStatusUseCase } from './application/use-cases/update-task-status-use-case';
+import { PrismaService } from 'src/shared/infrastructure/database/prisma.service';
+import { PrismaTaskRepository } from './infrastructure/persistance/prisma-task.repository';
 
 const TASK_REPOSITORY = 'TASK_REPOSITORY';
 
@@ -17,7 +19,9 @@ const TASK_REPOSITORY = 'TASK_REPOSITORY';
     providers: [
         {
             provide: TASK_REPOSITORY,
-            useClass: InMemoryTaskRepository,
+            useFactory: (prisma: PrismaService) =>
+                new PrismaTaskRepository(prisma),
+            inject: [PrismaService],
         },
         {
             provide: CreateTaskUseCase,

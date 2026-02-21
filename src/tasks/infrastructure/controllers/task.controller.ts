@@ -49,8 +49,9 @@ export class TaskController {
         type: TaskResponseDto,
     })
     @ApiBadRequestResponse({ description: 'Invalid input data' })
-    createTask(@Body() body: CreateTaskDto) {
-        return this.createTaskUseCase.execute(body);
+    async createTask(@Body() body: CreateTaskDto) {
+        const createdTask = await this.createTaskUseCase.execute(body);
+        return TaskMapper.toResponseDto(createdTask);
     }
 
     @Get()
@@ -59,10 +60,9 @@ export class TaskController {
         description: 'List of all tasks',
         type: [TaskResponseDto],
     })
-    getTasks() {
-        return this.getTasksUseCase
-            .execute()
-            .map((task) => TaskMapper.toResponseDto(task));
+    async getTasks() {
+        const tasks = await this.getTasksUseCase.execute();
+        return tasks.map((task) => TaskMapper.toResponseDto(task));
     }
 
     @Get(':id')
@@ -70,8 +70,9 @@ export class TaskController {
     @ApiParam({ name: 'id', description: 'Task ID' })
     @ApiOkResponse({ description: 'The found task', type: TaskResponseDto })
     @ApiNotFoundResponse({ description: 'Task not found' })
-    getTaskById(@Param('id') id: string) {
-        return TaskMapper.toResponseDto(this.getTaskByIdUseCase.execute(id));
+    async getTaskById(@Param('id') id: string) {
+        const task = await this.getTaskByIdUseCase.execute(id);
+        return TaskMapper.toResponseDto(task);
     }
 
     @Patch(':id/status')
@@ -80,11 +81,15 @@ export class TaskController {
     @ApiOkResponse({ description: 'Task status updated successfully' })
     @ApiNotFoundResponse({ description: 'Task not found' })
     @ApiBadRequestResponse({ description: 'Invalid status transition' })
-    updateTaskStatus(
+    async updateTaskStatus(
         @Param('id') id: string,
         @Body() body: UpdateTaskStatusDto,
     ) {
-        return this.updateTaskStatusUseCase.execute(id, body.status);
+        const updatedTask = await this.updateTaskStatusUseCase.execute(
+            id,
+            body.status,
+        );
+        return TaskMapper.toResponseDto(updatedTask);
     }
 
     @Patch(':id')
@@ -96,8 +101,9 @@ export class TaskController {
     })
     @ApiNotFoundResponse({ description: 'Task not found' })
     @ApiBadRequestResponse({ description: 'Invalid input data' })
-    updateTask(@Param('id') id: string, @Body() body: UpdateTaskDto) {
-        return this.updateTaskUseCase.execute(id, body);
+    async updateTask(@Param('id') id: string, @Body() body: UpdateTaskDto) {
+        const updatedTask = await this.updateTaskUseCase.execute(id, body);
+        return TaskMapper.toResponseDto(updatedTask);
     }
 
     @Delete(':id')
@@ -105,7 +111,7 @@ export class TaskController {
     @ApiParam({ name: 'id', description: 'Task ID' })
     @ApiOkResponse({ description: 'Task deleted successfully' })
     @ApiNotFoundResponse({ description: 'Task not found' })
-    deleteTask(@Param('id') id: string) {
+    async deleteTask(@Param('id') id: string) {
         return this.deleteTaskUseCase.execute(id);
     }
 }

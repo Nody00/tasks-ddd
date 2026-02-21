@@ -6,7 +6,7 @@ import { Task } from 'src/tasks/domain/entity/task';
 export class InMemoryTaskRepository implements TaskRepository {
     private tasks: Task[] = [];
 
-    save(task: Task): Task {
+    async save(task: Task): Promise<Task> {
         const existingIndex = this.tasks.findIndex((t) => t.id === task.id);
 
         if (existingIndex !== -1) {
@@ -14,25 +14,26 @@ export class InMemoryTaskRepository implements TaskRepository {
             return task;
         } else {
             this.tasks.push(task);
-            return task;
+            return Promise.resolve(task);
         }
     }
 
-    findById(id: string): Task | null {
+    async findById(id: string): Promise<Task | null> {
         const foundTask = this.tasks.find((task) => task.id === id);
 
         if (!foundTask) {
             return null;
         }
 
-        return foundTask;
+        return Promise.resolve(foundTask);
     }
 
-    findAll(): Task[] | [] {
-        return this.tasks;
+    async findAll(): Promise<Task[]> {
+        return Promise.resolve(this.tasks);
     }
 
-    delete(id: string): void {
+    async delete(id: string): Promise<void> {
         this.tasks = this.tasks.filter((task) => task.id !== id);
+        return Promise.resolve();
     }
 }

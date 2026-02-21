@@ -6,9 +6,11 @@ import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { ThrottlerBehindProxyGuard } from './shared/infrastructure/guards/throttler-behind-proxy.guard';
 import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis';
+import { PrismaModule } from './shared/infrastructure/database/prisma.module';
 
 @Module({
     imports: [
+        PrismaModule,
         TaskModule,
         ThrottlerModule.forRoot({
             throttlers: [

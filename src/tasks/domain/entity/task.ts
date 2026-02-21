@@ -21,10 +21,22 @@ export class Task {
     status: TaskStatus;
 
     constructor(title: string, description: string) {
-        this.id = Math.random().toString(36).substring(2, 15);
+        this.id = crypto.randomUUID();
         this.title = title;
         this.description = description;
         this.status = TaskStatus.OPEN;
+    }
+
+    static reconstruct(
+        id: string,
+        title: string,
+        description: string,
+        status: TaskStatus,
+    ): Task {
+        const task = new Task(title, description);
+        task.id = id;
+        task.status = status;
+        return task;
     }
 
     updateStatus(status: TaskStatus) {

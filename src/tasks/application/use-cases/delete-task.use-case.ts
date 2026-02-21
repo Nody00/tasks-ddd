@@ -4,8 +4,8 @@ import { TaskRepository } from '../ports/task.repository';
 export class DeleteTaskUseCase {
     constructor(private readonly taskRepository: TaskRepository) {}
 
-    execute(id: string): void {
-        const task = this.taskRepository.findById(id);
+    async execute(id: string): Promise<void> {
+        const task = await this.taskRepository.findById(id);
 
         if (!task) {
             throw new TaskNotFoundException(id);

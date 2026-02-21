@@ -4,7 +4,10 @@ import { TaskRepository } from '../ports/task.repository';
 export class CreateTaskUseCase {
     constructor(private readonly taskRepository: TaskRepository) {}
 
-    execute(input: { title: string; description: string }): Task {
+    async execute(input: {
+        title: string;
+        description: string;
+    }): Promise<Task> {
         const task = new Task(input.title, input.description);
         return this.taskRepository.save(task);
     }

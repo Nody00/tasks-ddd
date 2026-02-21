@@ -5,8 +5,8 @@ import { Task } from 'src/tasks/domain/entity/task';
 export class GetTaskByIdUseCase {
     constructor(private readonly taskRepository: TaskRepository) {}
 
-    execute(id: string): Task {
-        const task = this.taskRepository.findById(id);
+    async execute(id: string): Promise<Task> {
+        const task = await this.taskRepository.findById(id);
 
         if (!task) {
             throw new TaskNotFoundException(id);
