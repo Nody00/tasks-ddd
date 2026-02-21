@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/shared/infrastructure/database/prisma.service';
 import { TaskRepository } from 'src/tasks/application/ports/task.repository';
-import { Task, TaskStatus } from 'src/tasks/domain/entity/task';
+import { Task } from 'src/tasks/domain/entity/task';
 import { PrismaTaskMapper } from './prisma-task.mapper';
 
 @Injectable()
@@ -14,13 +14,13 @@ export class PrismaTaskRepository implements TaskRepository {
             update: {
                 title: task.title,
                 description: task.description,
-                status: task.status as TaskStatus,
+                status: task.status,
             },
             create: {
                 id: task.id,
                 title: task.title,
                 description: task.description,
-                status: task.status as TaskStatus,
+                status: task.status,
             },
         });
         return PrismaTaskMapper.toDomain(saved);
@@ -33,7 +33,7 @@ export class PrismaTaskRepository implements TaskRepository {
 
     async findAll(): Promise<Task[]> {
         const tasks = await this.prisma.task.findMany();
-        return tasks.map(PrismaTaskMapper.toDomain);
+        return tasks.map((task) => PrismaTaskMapper.toDomain(task));
     }
 
     async delete(id: string): Promise<void> {

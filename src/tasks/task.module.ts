@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 
 import { TaskController } from './infrastructure/controllers/task.controller';
-import { InMemoryTaskRepository } from './infrastructure/persistance/in-memory-task.repository';
 import { CreateTaskUseCase } from './application/use-cases/create-task.use-case';
 import { GetTaskByIdUseCase } from './application/use-cases/get-task-by-id.use-case';
 import { GetTasksUseCase } from './application/use-cases/get-tasks.use-case';
