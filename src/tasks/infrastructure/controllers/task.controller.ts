@@ -109,9 +109,10 @@ export class TaskController {
     @Delete(':id')
     @ApiOperation({ summary: 'Delete a task' })
     @ApiParam({ name: 'id', description: 'Task ID' })
-    @ApiOkResponse({ description: 'Task deleted successfully' })
+    @ApiOkResponse({ description: 'Task deleted successfully', type: TaskResponseDto })
     @ApiNotFoundResponse({ description: 'Task not found' })
     async deleteTask(@Param('id') id: string) {
-        return this.deleteTaskUseCase.execute(id);
+        const task = await this.deleteTaskUseCase.execute(id);
+        return TaskMapper.toResponseDto(task);
     }
 }

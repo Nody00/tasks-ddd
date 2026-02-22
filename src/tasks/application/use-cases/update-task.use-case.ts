@@ -15,13 +15,7 @@ export class UpdateTaskUseCase {
             throw new TaskNotFoundException(id);
         }
 
-        if (input.title) {
-            task.updateTitle(input.title);
-        }
-
-        if (input.description) {
-            task.updateDescription(input.description);
-        }
+        task.update(input);
 
         return this.taskRepository.save(task);
     }

@@ -14,9 +14,16 @@ until [ "$(docker inspect --format='{{.State.Health.Status}}' everything_api_pos
 done
 echo " ready!"
 
+echo "→ Waiting for Kafka to be ready..."
+until [ "$(docker inspect --format='{{.State.Health.Status}}' everything_api_kafka 2>/dev/null)" = "healthy" ]; do
+  printf '.'
+  sleep 1
+done
+echo " ready!"
+
 echo "→ Resetting database (drops all data, applies all migrations)..."
 pnpm prisma migrate reset --force
 
 echo ""
 echo "Setup complete."
-pnpm start:watch
+pnpm dev

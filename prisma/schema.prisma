@@ -32,3 +32,26 @@ model Task {
 
   @@map("tasks")
 }
+
+enum OutboxEventStatus {
+  PENDING
+  PROCESSING
+  PROCESSED
+  FAILED
+}
+
+model OutboxEvent {
+  id            String            @id @default(uuid()) @db.Uuid
+  eventType     String            // e.g. "task.created"
+  aggregateId   String            // the Task's UUID (used as Kafka message key)
+  aggregateType String            // e.g. "Task"
+  payload       Json              // full event data — JSON-serializable
+  status        OutboxEventStatus @default(PENDING)
+  failureCount  Int               @default(0)
+  lastError     String?
+  createdAt     DateTime          @default(now())
+  processedAt   DateTime?
+
+  @@index([status, createdAt])   // critical — the relay's polling query filters and sorts on these
+  @@map("outbox_events")
+}

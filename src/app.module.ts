@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TaskModule } from './tasks/task.module';
@@ -7,11 +8,14 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { ThrottlerBehindProxyGuard } from './shared/infrastructure/guards/throttler-behind-proxy.guard';
 import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis';
 import { PrismaModule } from './shared/infrastructure/database/prisma.module';
+import { OutboxModule } from './shared/infrastructure/outbox/outbox.module';
 
 @Module({
     imports: [
+        ScheduleModule.forRoot(),
         PrismaModule,
         TaskModule,
+        OutboxModule,
         ThrottlerModule.forRoot({
             throttlers: [
                 {

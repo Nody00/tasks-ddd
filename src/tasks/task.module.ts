@@ -10,12 +10,16 @@ import { TaskRepository } from './application/ports/task.repository';
 import { UpdateTaskStatusUseCase } from './application/use-cases/update-task-status-use-case';
 import { PrismaService } from 'src/shared/infrastructure/database/prisma.service';
 import { PrismaTaskRepository } from './infrastructure/persistance/prisma-task.repository';
+import { KafkaModule } from 'src/shared/infrastructure/kafka/kafka.module';
+import { TaskEventsConsumerService } from './infrastructure/event-handlers/task-events.consumer';
 
 const TASK_REPOSITORY = 'TASK_REPOSITORY';
 
 @Module({
+    imports: [KafkaModule],
     controllers: [TaskController],
     providers: [
+        TaskEventsConsumerService,
         {
             provide: TASK_REPOSITORY,
             useFactory: (prisma: PrismaService) =>
