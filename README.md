@@ -1,98 +1,153 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Everything API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A NestJS REST API built to practice **Clean Architecture** and **Clean Code** principles (Uncle Bob). Every implementation decision prioritises production quality: strict typing, layered architecture, atomic event delivery, and rate limiting.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## What's in here
 
-## Description
+| Concept | Implementation |
+|---|---|
+| Clean Architecture | Strict dependency rule enforced by ESLint — domain never imports framework code |
+| Domain Events | Events raised by entities, not use cases; carry full before/after snapshots |
+| Transactional Outbox | Atomic DB write + event record in one Prisma transaction; relay publishes to Kafka |
+| Soft Delete | Status transition to `DELETED` — rows are never physically removed |
+| Rate Limiting | Per-endpoint write throttling backed by Redis |
+| API Docs | Scalar UI at `/reference`, powered by OpenAPI/Swagger |
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Prerequisites
 
-## Project setup
+- [Node.js](https://nodejs.org) 20+
+- [pnpm](https://pnpm.io) (`npm install -g pnpm`)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (runs PostgreSQL, Redis, Kafka)
 
+## Getting started
+
+**First time:**
 ```bash
-$ pnpm install
+pnpm install
+pnpm dev:setup
 ```
 
-## Compile and run the project
+`dev:setup` generates the Prisma client, starts Docker services, waits for all three to be healthy, resets the database, and starts the app in watch mode.
 
+**Subsequent runs:**
 ```bash
-# development
-$ pnpm run start
-
-# watch mode
-$ pnpm run start:dev
-
-# production mode
-$ pnpm run start:prod
+pnpm dev
 ```
 
-## Run tests
+Starts Docker services (if not already running) and launches the app in watch mode.
 
+**Reset everything** (drops all data):
 ```bash
-# unit tests
-$ pnpm run test
-
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
+pnpm dev:clean
 ```
 
-## Deployment
+## Environment
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
+Create `.env` at the project root:
+```
+DATABASE_URL=postgresql://everything_user:everything_password@localhost:5432/everything_api
+KAFKA_BROKERS=localhost:9092
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## API
 
-## Resources
+The app runs on **http://localhost:3000** by default.
 
-Check out a few resources that may come in handy when working with NestJS:
+| Method | Path | Description |
+|---|---|---|
+| `POST` | `/tasks` | Create a task |
+| `GET` | `/tasks` | List all tasks |
+| `GET` | `/tasks/:id` | Get a task by ID |
+| `PATCH` | `/tasks/:id` | Update title and/or description |
+| `PATCH` | `/tasks/:id/status` | Transition task status |
+| `DELETE` | `/tasks/:id` | Soft-delete a task (status → `DELETED`) |
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+**Interactive docs:** http://localhost:3000/reference
 
-## Support
+### Task status transitions
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```
+OPEN → IN_PROGRESS → DONE
+  ↓         ↓          ↓
+        DELETED
+```
 
-## Stay in touch
+### Rate limits
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Write endpoints (`POST`, `PATCH`, `DELETE`) are throttled. Limits are backed by Redis so they survive app restarts and work across multiple instances.
 
-## License
+## Architecture
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+```
+src/
+  shared/
+    domain/events/         ← IDomainEvent interface (zero NestJS imports)
+    infrastructure/
+      kafka/               ← KafkaService — producer, consumer, topic admin
+      outbox/              ← OutboxRelayService — polls DB, publishes to Kafka
+  tasks/
+    domain/
+      entity/              ← Task entity — raises domain events on every mutation
+      events/              ← TaskCreatedEvent, TaskUpdatedEvent, TaskDeletedEvent, etc.
+      exceptions/          ← TaskNotFoundException, InvalidStatusTransitionException
+    application/
+      ports/               ← TaskRepository interface
+      use-cases/           ← One class per use case, one execute() method
+    infrastructure/
+      controllers/         ← Thin HTTP layer — translates requests to use case calls
+      event-handlers/      ← Kafka consumer — logs events, ready for side effects
+      persistance/         ← PrismaTaskRepository — atomic save + outbox write
+```
+
+### Event flow
+
+```
+HTTP request
+    │
+    ▼
+Use case calls task.someMethod()
+    │  entity raises domain events internally
+    ▼
+taskRepository.save(task)
+    │  Prisma $transaction:
+    │    1. upsert task row
+    │    2. insert outbox_events rows (status: PENDING)
+    ▼
+outbox_events table
+    │
+    ▼  polled every 1s by OutboxRelayService
+Kafka — topic: task-events (keyed by task ID)
+    │
+    ▼
+TaskEventsConsumerService — logs event, ready for side effects
+```
+
+### Why the outbox pattern?
+
+Writing to the database and then publishing to Kafka are two separate operations. If the app crashes between them, one side is updated and the other isn't — a consistency bug. The outbox pattern solves this by writing the event record to the **same database transaction** as the business data change. A background relay then reads from the outbox and publishes to Kafka. The database is the source of truth for delivery status.
+
+## Commands
+
+| Command | Description |
+|---|---|
+| `pnpm dev:setup` | First-time setup (Docker + DB reset + app start) |
+| `pnpm dev` | Start app in watch mode |
+| `pnpm dev:clean` | Tear down Docker volumes (wipes data) |
+| `pnpm build` | Compile to `dist/` |
+| `pnpm test` | Run unit tests |
+| `pnpm test:e2e` | Run end-to-end tests |
+| `pnpm lint` | Lint and auto-fix |
+| `pnpm typecheck` | Type-check without emitting |
+| `pnpm format` | Format with Prettier |
+
+## Infrastructure
+
+All services run via Docker Compose:
+
+| Service | Image | Port |
+|---|---|---|
+| PostgreSQL | postgres:17-alpine | 5432 |
+| Redis | redis:8-alpine | 6379 |
+| Kafka | apache/kafka:3.8.1 (KRaft) | 9092 |
+
+Kafka runs in **KRaft mode** — no Zookeeper required.
