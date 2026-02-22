@@ -55,5 +55,4 @@ export class PrismaTaskRepository implements TaskRepository {
         const tasks = await this.prisma.task.findMany();
         return tasks.map((task) => PrismaTaskMapper.toDomain(task));
     }
-
 }

@@ -120,9 +120,7 @@ export class OutboxRelayService {
                 await this.prisma.outboxEvent.update({
                     where: { id: event.id },
                     data: {
-                        status: isDead
-                            ? 'FAILED'
-                            : 'PENDING',
+                        status: isDead ? 'FAILED' : 'PENDING',
                         failureCount: newFailureCount,
                         lastError: err.message,
                     },
